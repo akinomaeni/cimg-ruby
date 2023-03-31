@@ -6,12 +6,12 @@
 # specific reason to use a different one. This means January, April, July, or
 # October.
 
-# NOTE: This uses November due to an OpenSSL CVE fix. We will resume using quarterly versions of cimg-base in Q1
-FROM cimg/base:2022.11-20.04
+# NOTE: Ruby 3.0 require OpenSSL >= 1.0.1, < 3.0.0, so use Ubuntu 20.04.
+FROM cimg/base:2023.01-20.04
 
 LABEL maintainer="Community & Partner Engineering Team <community-partner@circleci.com>"
 
-ENV RUBY_VERSION=3.0.5 \
+ENV RUBY_VERSION=3.0.6 \
 	RUBY_MAJOR=3.0
 
 RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
@@ -57,6 +57,7 @@ RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
 	curl -sSL $downloadURL | tar -xz -C ~/ruby --strip-components=1 && \
 	cd ~/ruby && \
 	autoconf && \
+	# NOTE: YJIT is not available in Ruby 3.0
 	./configure --enable-shared && \
 	make -j "$(nproc)" && \
 	sudo make install && \
