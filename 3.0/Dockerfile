@@ -49,8 +49,6 @@ RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
 		# Rails dep
 		sqlite3 \
 		zlib1g-dev \
-		# YJIT dep
-		rustc \
 	&& \
 	# Skip installing gem docs
 	echo "gem: --no-document" > ~/.gemrc && \
@@ -59,7 +57,8 @@ RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
 	curl -sSL $downloadURL | tar -xz -C ~/ruby --strip-components=1 && \
 	cd ~/ruby && \
 	autoconf && \
-	./configure --enable-yjit --enable-shared && \
+	# NOTE: YJIT is not available in Ruby 3.0
+	./configure --enable-shared && \
 	make -j "$(nproc)" && \
 	sudo make install && \
 	mkdir ~/.rubygems && \
@@ -70,10 +69,7 @@ RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
 	gem --version && \
 	sudo gem update --system && \
 	gem --version && \
-	bundle --version && \
-
-	# Cleanup YJIT install deps
-	sudo apt-get remove rustc && sudo apt-get autoremove
+	bundle --version
 
 ENV GEM_HOME /home/circleci/.rubygems
 ENV PATH $GEM_HOME/bin:$BUNDLE_PATH/gems/bin:$PATH
